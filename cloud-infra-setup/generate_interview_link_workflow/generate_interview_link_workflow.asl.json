@@ -1,0 +1,125 @@
+{
+  "Comment": "Job Ready State Machine",
+  "StartAt": "CheckDDBForTranscript",
+  "States": {
+    "CheckDDBForTranscript": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:getItem",
+      "Parameters": {
+        "TableName": "jr_transcript_tbl",
+        "Key": {
+          "interview-url": {
+            "S.$": "$.Interview_Url"
+          },
+          "interview-url-type": {
+            "S.$": "$.Interview_Url_Type"
+          }
+        }
+      },
+      "ResultPath": "$.DDBResult1",
+      "Next": "ProcessResult1"
+    },
+    "ProcessResult1": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.DDBResult1.Item",
+          "IsPresent": true,
+          "Next": "EntryExistsState1"
+        },
+        {
+          "Variable": "$.DDBResult1.Item",
+          "IsPresent": false,
+          "Next": "EntryDoesNotExistState1"
+        }
+      ]
+    },
+    "EntryExistsState1": {
+      "Type": "Pass",
+      "Result": "The entry exists.",
+      "Next": "CheckDDBForQB",
+      "ResultPath": null
+    },
+    "EntryDoesNotExistState1": {
+      "Type": "Pass",
+      "Result": "The entry does not exist.",
+      "Next": "InvokeLambda1",
+      "ResultPath": null
+    },
+    "InvokeLambda1": {
+      "Type": "Task",
+      "Resource": "${Function1Arn}",
+      "Parameters": {
+        "name.$": "$.name",
+        "input_url.$": "$.Interview_Url",
+        "input_url_type.$": "$.Interview_Url_Type"
+      },
+      "Next": "CheckDDBForQB",
+      "ResultPath": null
+    },
+    "CheckDDBForQB": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:getItem",
+      "Parameters": {
+        "TableName": "jr_questionbank_tbl",
+        "Key": {
+          "interview-url": {
+            "S.$": "$.Interview_Url"
+          }
+        }
+      },
+      "ResultPath": "$.DDBResult2",
+      "Next": "ProcessResult2"
+    },
+    "ProcessResult2": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.DDBResult2.Item",
+          "IsPresent": true,
+          "Next": "EntryExistsState2"
+        },
+        {
+          "Variable": "$.DDBResult2.Item",
+          "IsPresent": false,
+          "Next": "EntryDoesNotExistState2"
+        }
+      ]
+    },
+    "EntryExistsState2": {
+      "Type": "Pass",
+      "Result": "The entry exists.",
+      "Next": "InvokeLambda3",
+      "ResultPath": null
+    },
+    "EntryDoesNotExistState2": {
+      "Type": "Pass",
+      "Result": "The entry does not exist.",
+      "Next": "InvokeLambda2",
+      "ResultPath": null
+    },
+    "InvokeLambda2": {
+      "Type": "Task",
+      "Resource": "${Function2Arn}",
+      "Parameters": {
+        "name.$": "$.name",
+        "input_url.$": "$.Interview_Url",
+        "input_url_type.$": "$.Interview_Url_Type"
+      },
+      "Next": "InvokeLambda3",
+      "ResultPath": null
+    },
+    "InvokeLambda3": {
+      "Type": "Task",
+      "Resource": "${Function3Arn}",
+      "Parameters": {
+        "name.$": "$.name",
+        "input_url.$": "$.Interview_Url"
+      },
+      "End": true
+    }
+  }
+}
+
+
+  

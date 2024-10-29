@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluation Report</title>
+    
+    <link rel="stylesheet" href="report_card.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="name"></h1>
+            <p id="test-id"></p>
+            <p id="test-date"> </p> 
+        </div>
+        <div class="auto-view">
+            <h2>Overall Score</h2>
+            <div class="score" id="overall-score"></div>
+            
+        </div>
+        <div class="skills-section">
+            <div class="skill-item">
+                <h3>Completeness</h3>
+                <div class="skill-score" id="Completeness_score"></div>
+            </div>
+            <div class="skill-item">
+                <h3>Correctness</h3>
+                <div class="skill-score" id="Correctnes_score"></div>
+            </div>
+            <div class="skill-item">
+                <h3>Communication</h3>
+                <div class="skill-score">10/10</div>
+            </div>
+        </div>
+        <div class="container1">
+            <section class="introduction">
+                <h1>Introduction</h1>
+                <h2>About the Report</h2>
+                <p>This report provides a detailed analysis of the candidate's performance on different aspects of thier responces.The evaluation report encompass three main areas for each question, i.e.
+                    1. Completeness   2. Correctness  3.Communication. </p>
+                <p>This report has the following sections:</p>
+                <ul>
+                    <li>The Insights section provides an overall snapshot of the candidate's performance in three different feild. It includes a graphical representation of the test scores and the subsection scores.</li>
+                    <li>The Detailed Response section provides detaied feedback and score of each question in different aspects .</li>
+                </ul>
+                <h2>Score Interpretation</h2>
+                <p>Each Mock Interview test scores are on a scale of 0-100. There are 3 questions each of 30 marks .10 marks for overall communication. Out of 30 marks in each question, 15 marks for communication and 15 marks for correctness.</p>
+                
+            </section>
+        </div>
+        <div class="container3">
+            <section class="insights">
+                <h2>Insights</h2>
+                <div class="insight-item">
+                    <div class="insight-header">
+                        <h3>Completeness</h3>
+                        <div class="insight-score"></div>
+                    </div>
+                    <div class="insight-description" id="Complete">
+                       
+                    </div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-header">
+                        <h3>Correctness</h3>
+                        <div class="insight-score"></div>
+                    </div>
+                    <div class="insight-description" id="Correctness">
+                        
+                    </div>
+                </div>
+                <!-- Add more insight items as needed -->
+            </section>
+        </div>
+        <div class="container4">
+            <section class="insights">
+            <h2>Evaluation report</h2>
+         <table>
+            <tr>
+              <th bgcolor="green">Question</th>
+              <th bgcolor="green">Completeness</th>
+              <th bgcolor="green">Completeness Score</th>
+              <th bgcolor="green">Correctness</th>
+              <th bgcolor="green">Correctness Score</th>
+              <th bgcolor="green">Score</th>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td id="com_q1"></td>
+              <td id="com_q1_score"></td>
+              <td id="cor_q1"></td>
+              <td id="cor_q1_score"></td>
+              <td id="score_q1"></td>
+              
+            </tr>
+            <tr>
+              <td>2</td>
+              <td id="com_q2"></td>
+              <td id="com_q2_score"></td>
+              <td id="cor_q2"></td>
+              <td id="cor_q2_score"></td>
+              <td id="score_q2"></td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td id="com_q3"></td>
+                <td id="com_q3_score"></td>
+                <td id="cor_q3"></td>
+                <td id="cor_q3_score"></td>
+                <td id="score_q3"></td>
+              </tr>
+          </table>
+            </section>
+        </div>
+    </div>
+  
+    <script type="module" src="report_card.js"></script>
+</body>
+
+

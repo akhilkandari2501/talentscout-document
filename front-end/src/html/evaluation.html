@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jobreadiness</title>
+  <link rel="stylesheet" href="evaluation.css">
+</head>
+<body>
+  <header>
+    <h1>Jobreadiness</h1>
+    <h2>Prepare for Your Dream Job</h2>
+    <p>Explore our resources to enhance your skills and stand out in the job market.</p>
+  </header>
+
+  <main>
+    <div id="tabs">
+      <button class="tab-button active" id="evaluation-report-btn">Evaluation Report</button>
+      <button class="tab-button" id="dashboard-btn">Dashboard</button>
+    </div>
+
+    <div id="tab-content">
+      <div class="tab-pane active" id="output">
+        <!-- <a href="#" class="evaluation-report-link" id="evaluation-report-link">View Evaluation Report</a> -->
+      </div>
+      <div class="tab-pane">
+        <p>Welcome to the Dashboard!</p>
+        <div id="input-container">
+          <input type="text" id="input-field" placeholder="Enter a URL or string">
+          <button id="submit-btn" >Submit</button>
+        </div>
+        <div id="link-container"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="evaluation.js"></script>
+</body>
+</html>

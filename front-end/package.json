@@ -1,0 +1,50 @@
+{
+  "name": "demos-babylon",
+  "version": "2.0.4",
+  "description": "Demos of the Babylon version of the Amazon Sumerian Hosts JS library",
+  "private": true,
+  "scripts": {
+    "test": "",
+    "start": "webpack serve",
+    "build": "webpack"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Amazon Web Services",
+    "url": "https://aws.amazon.com",
+    "organization": true
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@amazon-sumerian-hosts/babylon": "^2.0.6",
+    "@aws-sdk/client-cognito-identity": "^3.525.0",
+    "@aws-sdk/client-dynamodb": "^3.525.0",
+    "@aws-sdk/client-lambda": "^3.552.0",
+    "@aws-sdk/client-sfn": "^3.540.0",
+    "@aws-sdk/client-transcribe-streaming": "^3.534.0",
+    "@aws-sdk/credential-provider-cognito-identity": "^3.525.0",
+    "@aws-sdk/lib-dynamodb": "^3.525.0",
+    "@babylonjs/core": "^4.2.1",
+    "@babylonjs/loaders": "^4.2.1",
+    "@babylonjs/materials": "^4.2.1",
+    "buffer": "^6.0.3",
+    "microphone-stream": "^6.0.1",
+    "pako": "^2.1.0",
+    "process": "^0.11.10",
+    "sanitize-html": "^2.13.0"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^10.2.4",
+    "eslint": "^8.13.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-react": "^7.29.4",
+    "eslint-plugin-react-hooks": "^4.4.0",
+    "webpack": "^5.71.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.7.4"
+  }
+}

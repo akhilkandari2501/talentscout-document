@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mock Interview</title>
+
+  <link rel="stylesheet" href="interview_page.css" />
+
+  <!-- Sumerian Host dependencies -->
+  <script type="text/javascript" src="https://sdk.amazonaws.com/js/aws-sdk-2.1328.0.min.js"></script>
+  <script>
+   
+    function hideButton() {
+        document.getElementById('speakButton').style.visibility = 'hidden';
+    }
+
+    
+    window.onload = function() {
+       
+        document.getElementById('speakButton').addEventListener('click', hideButton);
+    };
+</script>
+  <!-- Demo logic -->
+  <script type="module" src="interview_page.js"></script>
+  <style>
+    /* Add space between buttons */
+    #uiPanel button:first-child {
+          margin: 10px; /* Adjust as needed */
+      }
+      #uiPanel button:last-child {
+          margin: 10px; /* Adjust as needed */
+      }
+</style>
+</head>
+
+<body>
+  <div id="mainScreen">
+    
+     <canvas id="renderCanvas">
+     </canvas>
+     <div id="videoPanel">
+      <video id="videoElement" autoplay playsinline></video>
+      
+    </div>
+    <div id="uiPanel" class="panel">  
+      <div class="container">
+          <div class="chat-box" id="chatBox"></div>
+          <button id="speakButton">Start Interview</button>
+      </div> 
+  </div>
+  
+    
+    <div id = "outputSection">
+      <div id = "transcribedText">
+       
+      </div>
+      <div class="buttton">
+        <button class = "speakButton" onclick="submitAns()">Submit</button>
+        <button class = "button" onclick="clearTranscription()">Clear</button>
+      </div>
+    </div> 
+ 
+</div> 
+  </div>
+</div>
+  
+</body>
+</html>

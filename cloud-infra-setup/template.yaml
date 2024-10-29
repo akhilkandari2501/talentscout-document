@@ -1,0 +1,342 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Sam for Jobreadiness deployment
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+
+Globals:
+  Function:
+    Timeout: 600
+    MemorySize: 1024
+
+    # You can add LoggingConfig parameters such as the Logformat, Log Group, and SystemLogLevel or ApplicationLogLevel. Learn more here https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html#sam-function-loggingconfig.
+    # LoggingConfig:
+    #   LogFormat: JSON
+Parameters:
+  BucketNamePrefix:
+    Type: String
+    Description: Prefix for the S3 bucket name
+Resources:
+  # Creates 4 dynamodb table 
+  InterviewTbl:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: jr_interview_tbl
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions: 
+        - AttributeName: interview-id
+          AttributeType: S
+        - AttributeName: candidate-name
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: interview-id
+          KeyType: HASH
+        - AttributeName: candidate-name
+          KeyType: RANGE
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+
+  CandidateTbl:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: jr_candidate_tbl
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions: 
+        - AttributeName: uuid_key
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: uuid_key
+          KeyType: HASH
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  QuestionbankTbl:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: jr_questionbank_tbl
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions: 
+        - AttributeName: interview-url
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: interview-url
+          KeyType: HASH
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  TranscriptTbl:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: jr_transcript_tbl
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions: 
+        - AttributeName: interview-url
+          AttributeType: S
+        - AttributeName: interview-url-type
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: interview-url
+          KeyType: HASH
+        - AttributeName: interview-url-type
+          KeyType: RANGE
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  EvaluationTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: evaluation
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions: 
+        - AttributeName: interview-id
+          AttributeType: S
+        - AttributeName: questions
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: interview-id
+          KeyType: HASH
+        - AttributeName: questions
+          KeyType: RANGE
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+  DashboardTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: DashBoard
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions: 
+        - AttributeName: interview-url 
+          AttributeType: S
+        - AttributeName: interview-id
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: interview-url
+          KeyType: HASH
+        - AttributeName: interview-id
+          KeyType: RANGE
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+  # Creates Lambda functions used in step fubction workflow
+  LambdaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: trafilatura-lambda-layer
+      Description: Lambda Layer
+      ContentUri: handlers/extract_text/trafilatura_layer-49e49447-f767-4798-93fe-4277f826c94d.zip
+      CompatibleRuntimes:
+        - python3.12
+  ExtractText:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      FunctionName: extract_text
+      CodeUri: handlers/extract_text/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      ReservedConcurrentExecutions: 10 
+      Architectures:
+      - x86_64
+      Environment:
+        Variables:
+          transcript_tbl: !Ref TranscriptTbl
+      Layers:
+        - !Ref LambdaLayer
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - AmazonBedrockFullAccess
+  GenerateQuestions:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      FunctionName: generate_questions
+      CodeUri: handlers/generate_questions/
+      Handler: app.lambda_handler
+      ReservedConcurrentExecutions: 10 
+      Environment:
+        Variables:
+          transcript_tbl: !Ref  TranscriptTbl
+          questionbank_tbl: !Ref QuestionbankTbl
+      Runtime: python3.12
+      Architectures:
+      - x86_64
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - AmazonBedrockFullAccess
+  GenerateInterviewUrl:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      FunctionName: generate_interview_url
+      CodeUri: handlers/generate_interview_url/
+      Handler: app.lambda_handler
+      ReservedConcurrentExecutions: 10 
+      Environment:
+        Variables:
+          Candidate_tbl: !Ref CandidateTbl
+          questionbank_tbl: !Ref QuestionbankTbl
+          cloudfront_Url: !GetAtt DistributionDeployment.DomainName
+      Runtime: python3.12
+      Architectures:
+      - x86_64
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - AmazonBedrockFullAccess
+  ResponseEvaluation:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: response_evaluation
+      CodeUri: handlers/response_evaluation/
+      Handler: app.lambda_handler
+      ReservedConcurrentExecutions: 10 
+      Environment:
+        Variables:
+          table_1: !Ref EvaluationTable
+          table_2: !Ref DashboardTable
+          Candidate_tbl: !Ref CandidateTbl
+      Runtime: python3.12
+      Architectures:
+      - x86_64
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - AmazonBedrockFullAccess
+  StartStepfunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: start_stepfunction
+      CodeUri: handlers/start_stepfunction/
+      Handler: app.lambda_handler
+      ReservedConcurrentExecutions: 10 
+      Environment:
+        Variables:
+          STEP_FUNCTIONS_ARN: !GetAtt JobreadinessStateMachine.Arn
+          REGION: !Ref AWS::Region #added region to env var
+      Runtime: python3.12
+      Architectures:
+      - x86_64
+      Policies:
+        - AWSStepFunctionsFullAccess
+        - Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+              Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+            - Effect: Allow
+              Action:
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource:
+                - !GetAtt JobreadinessStateMachine.Arn
+               
+      
+    
+# step function code 
+  JobreadinessStateMachine:
+    Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
+    Properties:
+      DefinitionUri: generate_interview_link_workflow/generate_interview_link_workflow.asl.json
+      DefinitionSubstitutions:
+        Function1Arn: !GetAtt ExtractText.Arn
+        Function2Arn: !GetAtt GenerateQuestions.Arn
+        Function3Arn: !GetAtt GenerateInterviewUrl.Arn
+        TranscriptTable: !Ref TranscriptTbl
+        QuestionbankTable: !Ref QuestionbankTbl
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - AWSLambda_FullAccess
+        - Statement:
+            - Effect: Allow
+              Action:
+                - lambda:InvokeFunction
+              Resource:
+                - !GetAtt ExtractText.Arn
+                - !GetAtt GenerateQuestions.Arn
+                - !GetAtt GenerateInterviewUrl.Arn
+# S3 and CloudFrontcode 
+  S3Bucketfordeployment:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${BucketNamePrefix}-${AWS::AccountId}-${AWS::Region}-${AWS::StackName}"
+      BucketEncryption: 
+        ServerSideEncryptionConfiguration: 
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  CloudFrontOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: "s3origin"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  DistributionDeployment:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+            - DomainName: !GetAtt S3Bucketfordeployment.RegionalDomainName
+              Id: !Sub "${AWS::StackName}-web-app-s3-origin"
+              OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
+              S3OriginConfig: {}
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+          MinimumProtocolVersion: TLSv1.2_2021
+        Enabled: true
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          TargetOriginId: !Sub "${AWS::StackName}-web-app-s3-origin"
+          ForwardedValues:
+            QueryString: 'false'
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3Bucketfordeployment
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "GrantCloudFrontAccess"
+            Effect: "Allow"
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: "s3:GetObject"
+            Resource: !Join ["", ["arn:aws:s3:::", !Ref S3Bucketfordeployment, "/*"]]
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${DistributionDeployment}
+
+
+
+
+Outputs:
+
+  ResponseEvaluation:
+    Description: response evaluation Lambda ARN
+    Value: !Ref  ResponseEvaluation
+  StartStepfunction:
+    Description:  Lambda ARN for the lambda  that starts the stepfunction
+    Value: !Ref StartStepfunction
+  GenerateInterviewUrl:
+    Description:  Lambda ARN or the lambda  that gives the Interview
+    Value: !Ref  GenerateInterviewUrl
+  CandidateTbl:
+    Description:  Candidate table
+    Value: !Ref  CandidateTbl
+  InterviewTbl: 
+    Description: Interview table
+    Value: !Ref InterviewTbl
+  EvaluationTable:
+    Description: Evaluation table
+    Value: !Ref EvaluationTable
+  DashboardTable:
+    Description: Dashboard table
+    Value: !Ref DashboardTable
+  stepfunction:
+    Description: Stepfunction ARN
+    Value: !GetAtt JobreadinessStateMachine.Arn
+  CloudFrontDistributionURL:
+    Description: "URL for the CloudFront Distribution"
+    Value: !Sub "https://${DistributionDeployment.DomainName}"

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+   <!-- Cognito Auth Flow Script-->
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Interview</title>
+    <link rel="stylesheet" href="jobreadiness.css">
+    
+      
+    <script>
+   
+        function hideButton() {
+            document.getElementById('linkbtn').style.visibility = 'hidden';
+        }
+    
+        
+        window.onload = function() {
+           
+            document.getElementById('linkbtn').addEventListener('click', hideButton);
+            
+        };
+        
+    </script>
+
+      
+    
+</head>
+<body>
+    <div class="container">
+        <div class="image-container">
+            <img src="../assets/jobreadiness.jpeg" alt="Mock Interview Image"  width="600" height="300">
+            <div class="overlay-text">
+                <h1>Let's get started</h1>
+            </div>
+        </div>
+        <div class="content-container">
+            <h1>JOBREADINESS</h1>
+            <form id="stepFunctionForm">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" placeholder="Please enter your name" required><br><br>
+                
+                <label for="url">URL:</label>
+                <input type="text" id="url" name="url" placeholder="Please enter interview URL" required><br><br>
+
+                <label for="urlType">URL Type:</label>
+                <select id="urlType" name="urlType">
+                    <option value="website">website</option>
+                    <option value="video">Video URL</option>
+                </select><br><br>
+
+                <button id="linkbtn" type="button" onclick="generate_interview_link()">Submit</button>
+                <div id="outputContainer">
+                    <!-- Output will be displayed here -->
+                </div>
+            </form>
+            <script type="text/javascript" src="https://sdk.amazonaws.com/js/aws-sdk-2.1328.0.min.js"></script>
+            <script type="module" src="jobreadiness.js"></script>
+            
+   
+        </div>
+    </div>
+</body>
+</html>
