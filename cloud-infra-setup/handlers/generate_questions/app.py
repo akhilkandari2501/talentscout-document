@@ -182,13 +182,7 @@ def lambda_handler(event, context):
                 answer=a1[1]
                 list_of_answers[0]=a1[1]
         
-        # Pair questions with answers
-        question_answer_pairs = list(zip(list_of_questions, list_of_answers))
-        
-        # Update index for each question-answer pair
-        for question, answer in question_answer_pairs:
-            update_index(tableName, input_url, [question], [answer], datetime.now().strftime('%d-%m-%Y'))
-        
+        update_index(tableName,input_url,list_of_questions,list_of_answers,datetime.now().strftime('%d-%m-%Y'))
         return {"statusCode": 200, "body": "Success"}
 
     except Exception as e:
