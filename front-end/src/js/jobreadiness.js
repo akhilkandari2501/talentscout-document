@@ -8,29 +8,9 @@ const Name = document.getElementById('name');
 const content = document.getElementById('url');
 
 const contentInputType = document.getElementById("urlType");
-const documentUpload = document.getElementById("documentUpload");
-
-contentInputType.addEventListener("change", function() {
-    if (this.value === "document") {
-        content.style.display = "none";
-        documentUpload.style.display = "block";
-    } else {
-        content.style.display = "block";
-        documentUpload.style.display = "none";
-    }
-});
 
 const lambdaFunction = awsID.START_STEPFUNCTION_LAMBDA;
 console.log(lambdaFunction);
-function readFileAsBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = error => reject(error);
-        reader.readAsDataURL(file);
-    });
-}
-
 window.onload = function () {
   
    
@@ -67,20 +47,6 @@ window.onload = function () {
 };
 
 window.generate_interview_link = async () => {
-    const name = Name.value;
-    const urlType = contentInputType.value;
-    let contentValue;
-
-    if (urlType === "document") {
-        const file = documentUpload.files[0];
-        if (!file) {
-            alert("Please upload a document");
-            return;
-        }
-        contentValue = await readFileAsBase64(file);
-    } else {
-        contentValue = content.value;
-    }
    
 
   if (Name.value.length === 0) {
